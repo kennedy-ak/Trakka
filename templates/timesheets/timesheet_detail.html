@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}Time Entry - Trakka{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1><i class="bi bi-clock"></i> Time Entry Details</h1>
+                <p class="text-muted mb-0">Created on {{ entry.created_at|date:"F d, Y \a\t g:i A" }}</p>
+            </div>
+            <div class="btn-group">
+                {% if can_edit %}
+                <a href="{% url 'timesheet_update' entry.pk %}" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil"></i> Edit
+                </a>
+                <a href="{% url 'timesheet_delete' entry.pk %}" class="btn btn-outline-danger">
+                    <i class="bi bi-trash"></i> Delete
+                </a>
+                {% endif %}
+                <a href="{% url 'timesheet_list' %}" class="btn btn-secondary">
+                    <i class="bi bi-list"></i> All Entries
+                </a>
+            </div>
+        </div>
+
+        <!-- Status Alert -->
+        <div class="alert alert-{{ entry.status|lower == 'pending'|yesno:'warning,success' }} d-flex justify-content-between align-items-center" role="alert">
+            <div>
+                <i class="bi bi-{{ entry.status|lower == 'pending'|yesno:'hourglass-split,check-circle' }}"></i>
+                <strong>Status:</strong> {{ entry.status }}
+            </div>
+            {% if entry.status == 'REJECTED' and entry.rejection_reason %}
+            <div class="small">
+                <strong>Reason:</strong> {{ entry.rejection_reason }}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Entry Details -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-info-circle"></i> Entry Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row">
+                            <dt class="col-sm-4">Project:</dt>
+                            <dd class="col-sm-8">
+                                <a href="{% url 'project_detail' entry.project.pk %}">{{ entry.project.name }}</a>
+                            </dd>
+
+                            <dt class="col-sm-4">Date:</dt>
+                            <dd class="col-sm-8">{{ entry.date|date:"l, F d, Y" }}</dd>
+
+                            <dt class="col-sm-4">Duration:</dt>
+                            <dd class="col-sm-8">
+                                <strong>{{ entry.duration_hours }} hours</strong> ({{ entry.duration_minutes }} minutes)
+                            </dd>
+
+                            <dt class="col-sm-4">Entry Type:</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-info">{{ entry.entry_type }}</span>
+                            </dd>
+
+                            <dt class="col-sm-4">Description:</dt>
+                            <dd class="col-sm-8">{{ entry.description }}</dd>
+                        </dl>
+                    </div>
+                </div>
+
+                {% if entry.start_time and entry.end_time %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-clock-history"></i> Timer Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row">
+                            <dt class="col-sm-4">Started:</dt>
+                            <dd class="col-sm-8">{{ entry.start_time|date:"F d, Y \a\t g:i A" }}</dd>
+
+                            <dt class="col-sm-4">Stopped:</dt>
+                            <dd class="col-sm-8">{{ entry.end_time|date:"F d, Y \a\t g:i A" }}</dd>
+                        </dl>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-4">
+                <!-- Approval Status -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-check-circle"></i> Approval Status</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <h3>
+                            <span class="badge bg-{{ entry.status|lower }} fs-4">
+                                {{ entry.status }}
+                            </span>
+                        </h3>
+                        {% if entry.approved_by %}
+                        <p class="mt-3 mb-0">
+                            Approved by {{ entry.approved_by.username }}
+                            on {{ entry.approved_at|date:"M d, Y" }}
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                {% if can_approve and entry.status == 'PENDING' %}
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Actions</h5>
+                    </div>
+                    <div class="card-body d-grid gap-2">
+                        <a href="{% url 'approve_entry' entry.pk %}" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> Approve Entry
+                        </a>
+                        <a href="{% url 'reject_entry' entry.pk %}" class="btn btn-danger">
+                            <i class="bi bi-x-circle"></i> Reject Entry
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

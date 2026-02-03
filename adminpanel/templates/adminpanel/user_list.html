@@ -1,0 +1,141 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}Users - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-people"></i> User Management</h1>
+    <a href="{% url 'adminpanel:user_create' %}" class="btn btn-primary">
+        <i class="bi bi-person-plus"></i> Create User
+    </a>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-6">
+                <input type="text" class="form-control" name="q" placeholder="Search by username, email, or name..." value="{{ query }}">
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" name="role">
+                    <option value="">All Roles</option>
+                    <option value="WORKER" {% if role_filter == 'WORKER' %}selected{% endif %}>Worker</option>
+                    <option value="MANAGER" {% if role_filter == 'MANAGER' %}selected{% endif %}>Manager</option>
+                    <option value="ADMIN" {% if role_filter == 'ADMIN' %}selected{% endif %}>Admin</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i> Search
+                </button>
+                <a href="{% url 'adminpanel:user_list' %}" class="btn btn-outline-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Users Table -->
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Username</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Department</th>
+                        <th>Status</th>
+                        <th>Entries</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user_obj in page_obj %}
+                        <tr>
+                            <td><strong>{{ user_obj.username }}</strong></td>
+                            <td>{{ user_obj.get_full_name|default:"-" }}</td>
+                            <td>{{ user_obj.email|default:"-" }}</td>
+                            <td>
+                                {% if user_obj.profile.role == 'ADMIN' %}
+                                    <span class="badge bg-danger">{{ user_obj.profile.role }}</span>
+                                {% elif user_obj.profile.role == 'MANAGER' %}
+                                    <span class="badge bg-info">{{ user_obj.profile.role }}</span>
+                                {% else %}
+                                    <span class="badge bg-primary">{{ user_obj.profile.role }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ user_obj.profile.department|default:"-" }}</td>
+                            <td>
+                                {% if user_obj.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ user_obj.time_entries.count }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'adminpanel:user_detail' user_obj.id %}" class="btn btn-sm btn-outline-primary" title="View">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'adminpanel:user_edit' user_obj.id %}" class="btn btn-sm btn-outline-secondary" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    {% if user_obj != request.user %}
+                                        {% if user_obj.is_active %}
+                                            <a href="{% url 'adminpanel:user_delete' user_obj.id %}" class="btn btn-sm btn-outline-danger" title="Deactivate">
+                                                <i class="bi bi-person-x"></i>
+                                            </a>
+                                        {% else %}
+                                            <a href="{% url 'adminpanel:user_activate' user_obj.id %}" class="btn btn-sm btn-outline-success" title="Activate">
+                                                <i class="bi bi-person-check"></i>
+                                            </a>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center p-4">
+                                <i class="bi bi-inbox fs-1 text-muted"></i>
+                                <p class="mt-2 mb-0 text-muted">No users found.</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+            <nav class="p-3">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if role_filter %}&role={{ role_filter }}{% endif %}">Previous</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if role_filter %}&role={{ role_filter }}{% endif %}">Next</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">Next</span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

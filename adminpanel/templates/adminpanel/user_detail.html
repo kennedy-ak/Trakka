@@ -1,0 +1,182 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}{{ target_user.username }} - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1><i class="bi bi-person-circle"></i> {{ target_user.username }}</h1>
+        <p class="text-muted mb-0">{{ target_user.get_full_name|default:"No name set" }}</p>
+    </div>
+    <div>
+        <a href="{% url 'adminpanel:user_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Users
+        </a>
+        <a href="{% url 'adminpanel:user_edit' target_user.id %}" class="btn btn-primary">
+            <i class="bi bi-pencil"></i> Edit User
+        </a>
+        {% if target_user != request.user %}
+            <a href="{% url 'adminpanel:user_delete' target_user.id %}" class="btn btn-danger">
+                <i class="bi bi-person-x"></i> Deactivate
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- User Stats -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary shadow-sm">
+            <div class="card-body">
+                <h6 class="mb-0">Time Entries</h6>
+                <h2 class="mb-0">{{ total_entries }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success shadow-sm">
+            <div class="card-body">
+                <h6 class="mb-0">Total Hours</h6>
+                <h2 class="mb-0">{{ total_hours }}h</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info shadow-sm">
+            <div class="card-body">
+                <h6 class="mb-0">Approved</h6>
+                <h2 class="mb-0">{{ approved_entries }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning shadow-sm">
+            <div class="card-body">
+                <h6 class="mb-0">Pending</h6>
+                <h2 class="mb-0">{{ pending_entries }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Information -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> User Information</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr>
+                        <th width="30%">Username:</th>
+                        <td>{{ target_user.username }}</td>
+                    </tr>
+                    <tr>
+                        <th>Email:</th>
+                        <td>{{ target_user.email|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Full Name:</th>
+                        <td>{{ target_user.get_full_name|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Role:</th>
+                        <td>
+                            {% if target_user.profile.role == 'ADMIN' %}
+                                <span class="badge bg-danger">{{ target_user.profile.role }}</span>
+                            {% elif target_user.profile.role == 'MANAGER' %}
+                                <span class="badge bg-info">{{ target_user.profile.role }}</span>
+                            {% else %}
+                                <span class="badge bg-primary">{{ target_user.profile.role }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Department:</th>
+                        <td>{{ target_user.profile.department|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Status:</th>
+                        <td>
+                            {% if target_user.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Joined:</th>
+                        <td>{{ target_user.date_joined|date:"F d, Y" }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-folder"></i> Assigned Projects ({{ projects.count }})</h5>
+            </div>
+            <div class="card-body">
+                {% if projects %}
+                    <div class="list-group">
+                        {% for project in projects %}
+                            <a href="{% url 'project_detail' project.id %}" class="list-group-item list-group-item-action">
+                                {{ project.name }}
+                                <small class="text-muted">{{ project.time_entries.filter(user=target_user).count }} entries</small>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">No projects assigned to this user.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Time Entries -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <h5 class="mb-0"><i class="bi bi-clock-history"></i> Recent Time Entries</h5>
+    </div>
+    <div class="card-body p-0">
+        {% if recent_entries %}
+            <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Project</th>
+                            <th>Description</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in recent_entries %}
+                            <tr>
+                                <td>{{ entry.date|date:"M d, Y" }}</td>
+                                <td>{{ entry.project.name }}</td>
+                                <td>{{ entry.description|truncatewords:10 }}</td>
+                                <td>{{ entry.duration_hours }}h</td>
+                                <td>
+                                    <span class="badge bg-{{ entry.status|lower }}">{{ entry.status }}</span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center p-4 text-muted">
+                <i class="bi bi-inbox fs-1"></i>
+                <p class="mt-2 mb-0">No time entries recorded.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

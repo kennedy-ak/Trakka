@@ -1,0 +1,110 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}Manage Members - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-people"></i> Manage Members: {{ project.name }}</h1>
+    <a href="{% url 'adminpanel:project_list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Projects
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label">Select Project Members</label>
+                        <p class="text-muted small">
+                            Users must be added as members to log time to this project.
+                        </p>
+                    </div>
+
+                    <div class="border rounded p-3 mb-3" style="max-height: 400px; overflow-y: auto;">
+                        {% for user in all_users %}
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox"
+                                       name="members"
+                                       value="{{ user.id }}"
+                                       id="user_{{ user.id }}"
+                                       {% if user in project.members.all %}checked{% endif %}>
+                                <label class="form-check-label" for="user_{{ user.id }}">
+                                    <strong>{{ user.username }}</strong>
+                                    {% if user.get_full_name %}
+                                        ({{ user.get_full_name }})
+                                    {% endif %}
+                                    <span class="badge bg-{{ user.profile.role|lower }} ms-2">{{ user.profile.role }}</span>
+                                    {% if user.profile.department %}
+                                        <small class="text-muted">- {{ user.profile.department }}</small>
+                                    {% endif %}
+                                </label>
+                            </div>
+                        {% empty %}
+                            <p class="text-muted">No users available.</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'adminpanel:project_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Save Members
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Current Members -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0">Current Members ({{ project.members.count }})</h6>
+            </div>
+            <div class="card-body">
+                {% if project.members.all %}
+                    <ul class="list-group list-group-flush">
+                        {% for member in project.members.all %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ member.username }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ member.profile.role }}</small>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">
+                                    {{ member.time_entries.filter(project=project).count }} entries
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted mb-0">No members assigned to this project yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Project Info -->
+        <div class="card shadow-sm mt-3">
+            <div class="card-header bg-white">
+                <h6 class="mb-0">Project Info</h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-1"><strong>Name:</strong> {{ project.name }}</p>
+                <p class="mb-1"><strong>Status:</strong>
+                    {% if project.is_active %}
+                        <span class="badge bg-success">Active</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Inactive</span>
+                    {% endif %}
+                </p>
+                <p class="mb-1"><strong>Budget:</strong> {{ project.budget_hours|default:"Not set" }} hours</p>
+                <p class="mb-0"><strong>Logged:</strong> {{ project.total_hours|floatformat:1 }} hours</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

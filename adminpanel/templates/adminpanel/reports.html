@@ -1,0 +1,193 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}Reports - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-graph-up"></i> Reports & Analytics</h1>
+</div>
+
+<!-- Summary Stats -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card bg-primary text-white shadow-sm">
+            <div class="card-body">
+                <h6>Total Time Entries</h6>
+                <h2>{{ total_entries }}</h2>
+                <small>Last 30 days: {{ recent_entries }}</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card bg-success text-white shadow-sm">
+            <div class="card-body">
+                <h6>Recent Activity</h6>
+                <h2>{{ recent_entries }}</h2>
+                <small>Entries in last 30 days</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Breakdown -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Status Breakdown</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th class="text-end">Count</th>
+                            <th class="text-end">Hours</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in status_breakdown %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-{{ stat.status|lower }}">{{ stat.status }}</span>
+                                </td>
+                                <td class="text-end">{{ stat.count }}</td>
+                                <td class="text-end">{{ stat.hours|floatformat:1 }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Entry Type Breakdown -->
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Entry Type Breakdown</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th class="text-end">Count</th>
+                            <th class="text-end">Hours</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in entry_type_breakdown %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-secondary">{{ stat.entry_type }}</span>
+                                </td>
+                                <td class="text-end">{{ stat.count }}</td>
+                                <td class="text-end">{{ stat.hours|floatformat:1 }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Projects -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-trophy"></i> Top Projects by Hours</h5>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead>
+                        <tr>
+                            <th>Project</th>
+                            <th class="text-end">Hours</th>
+                            <th class="text-end">Entries</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for project in top_projects %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'project_detail' project.id %}">{{ project.name }}</a>
+                                </td>
+                                <td class="text-end">{{ project.total_hours|floatformat:1 }}</td>
+                                <td class="text-end">{{ project.entry_count }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">No data available</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Users -->
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-award"></i> Top Users by Hours</h5>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th class="text-end">Hours</th>
+                            <th class="text-end">Entries</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user_stat in top_users %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'adminpanel:user_detail' user_stat.id %}">{{ user_stat.username }}</a>
+                                </td>
+                                <td class="text-end">{{ user_stat.total_hours|floatformat:1 }}</td>
+                                <td class="text-end">{{ user_stat.entry_count }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">No data available</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Options -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <h5 class="mb-0"><i class="bi bi-download"></i> Export Options</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <a href="{% url 'report_detail' %}" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-table"></i> View Detailed Reports
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{% url 'report_summary' %}" class="btn btn-outline-success w-100">
+                    <i class="bi bi-file-earmark-bar-graph"></i> Summary Report
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{% url 'report_export' %}" class="btn btn-outline-info w-100">
+                    <i class="bi bi-filetype-csv"></i> Export to CSV
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

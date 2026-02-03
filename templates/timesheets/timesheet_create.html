@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}
+{% if entry %}Edit Time Entry{% else %}Add Time Entry{% endif %} - Trakka
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="bi bi-plus-circle"></i>
+                    {% if entry %}Edit Time Entry{% else %}Add Time Entry{% endif %}
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.project.id_for_label }}" class="form-label">Project *</label>
+                        {{ form.project|add_class:"form-select" }}
+                        {% if form.project.errors %}
+                        <div class="text-danger">{{ form.project.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.date.id_for_label }}" class="form-label">Date *</label>
+                                {{ form.date|add_class:"form-control" }}
+                                {% if form.date.errors %}
+                                <div class="text-danger">{{ form.date.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.duration_minutes.id_for_label }}" class="form-label">Duration (minutes) *</label>
+                                {{ form.duration_minutes|add_class:"form-control" }}
+                                <small class="form-text text-muted">Enter duration in minutes</small>
+                                {% if form.duration_minutes.errors %}
+                                <div class="text-danger">{{ form.duration_minutes.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Description *</label>
+                        {{ form.description|add_class:"form-control" }}
+                        {% if form.description.errors %}
+                        <div class="text-danger">{{ form.description.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% if entry %}{% url 'timesheet_detail' entry.pk %}{% else %}{% url 'timesheet_list' %}{% endif %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i>
+                            {% if entry %}Update Entry{% else %}Create Entry{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if entry %}
+        <div class="card mt-3">
+            <div class="card-body">
+                <h6>Entry Information</h6>
+                <dl class="row">
+                    <dt class="col-sm-4">Status:</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge bg-{{ entry.status|lower }}">{{ entry.status }}</span>
+                    </dd>
+                    <dt class="col-sm-4">Entry Type:</dt>
+                    <dd class="col-sm-8">{{ entry.entry_type }}</dd>
+                    <dt class="col-sm-4">Created:</dt>
+                    <dd class="col-sm-8">{{ entry.created_at|date:"F d, Y \a\t g:i A" }}</dd>
+                    {% if entry.approved_by %}
+                    <dt class="col-sm-4">Approved By:</dt>
+                    <dd class="col-sm-8">{{ entry.approved_by.username }} on {{ entry.approved_at|date:"M d, Y" }}</dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}Create User - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-person-plus"></i> Create New User</h1>
+    <a href="{% url 'adminpanel:user_list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Users
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <h5 class="mb-3">Account Information</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">Username *</label>
+                            <input type="text" class="form-control" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">Email *</label>
+                            <input type="email" class="form-control" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
+                            <input type="text" class="form-control" name="{{ form.first_name.name }}" id="{{ form.first_name.id_for_label }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" name="{{ form.last_name.name }}" id="{{ form.last_name.id_for_label }}">
+                        </div>
+                    </div>
+
+                    <h5 class="mb-3">Security</h5>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="{{ form.password.id_for_label }}" class="form-label">Password *</label>
+                            <input type="password" class="form-control" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.password_confirm.id_for_label }}" class="form-label">Confirm Password *</label>
+                            <input type="password" class="form-control" name="{{ form.password_confirm.name }}" id="{{ form.password_confirm.id_for_label }}" required>
+                        </div>
+                    </div>
+
+                    <h5 class="mb-3">Role & Department</h5>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="{{ form.role.id_for_label }}" class="form-label">Role *</label>
+                            <select class="form-select" name="{{ form.role.name }}" id="{{ form.role.id_for_label }}" required>
+                                <option value="">Select Role</option>
+                                <option value="WORKER">Worker</option>
+                                <option value="MANAGER">Manager</option>
+                                <option value="ADMIN">Admin</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.department.id_for_label }}" class="form-label">Department</label>
+                            <input type="text" class="form-control" name="{{ form.department.name }}" id="{{ form.department.id_for_label }}">
+                        </div>
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'adminpanel:user_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-person-plus"></i> Create User
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h6 class="mb-3"><i class="bi bi-info-circle"></i> Role Permissions</h6>
+
+                <div class="mb-3">
+                    <strong class="text-primary">Worker</strong>
+                    <ul class="small mb-0">
+                        <li>View own dashboard</li>
+                        <li>Create own time entries</li>
+                        <li>Use timer functionality</li>
+                    </ul>
+                </div>
+
+                <div class="mb-3">
+                    <strong class="text-info">Manager</strong>
+                    <ul class="small mb-0">
+                        <li>All Worker permissions</li>
+                        <li>Approve/reject entries</li>
+                        <li>View all reports</li>
+                        <li>Create projects</li>
+                    </ul>
+                </div>
+
+                <div class="mb-0">
+                    <strong class="text-danger">Admin</strong>
+                    <ul class="small mb-0">
+                        <li>All Manager permissions</li>
+                        <li>Create/manage users</li>
+                        <li>Full system access</li>
+                        <li>Django admin panel</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

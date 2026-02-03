@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Trakka{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1>Welcome back, {{ user.first_name|default:user.username }}!</h1>
+        <p class="text-muted">Here's your timesheet overview for this week.</p>
+    </div>
+</div>
+
+{% if running_timer %}
+<!-- Active Timer Alert -->
+<div class="alert alert-info d-flex justify-content-between align-items-center" role="alert">
+    <div>
+        <i class="bi bi-stopwatch"></i> <strong>Timer Running:</strong>
+        {{ running_timer.project.name }} - {{ running_timer.description|truncatewords:10 }}
+        <span class="badge bg-primary" id="timer-display">Loading...</span>
+    </div>
+    <div>
+        <a href="{% url 'timer_stop' running_timer.pk %}" class="btn btn-danger btn-sm">
+            <i class="bi bi-stop-circle"></i> Stop Timer
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">This Week</h5>
+                        <h2 class="card-text">{{ total_hours_week|floatformat:1 }}h</h2>
+                        <p class="card-text"><small>Hours worked</small></p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-clock fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Active Projects</h5>
+                        <h2 class="card-text">{{ active_projects_count }}</h2>
+                        <p class="card-text"><small>Projects available</small></p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-folder-check fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if user.profile.role == 'MANAGER' or user.profile.role == 'ADMIN' %}
+    <div class="col-md-3">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Pending</h5>
+                        <h2 class="card-text">{{ pending_approvals_count }}</h2>
+                        <p class="card-text"><small>Awaiting approval</small></p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-hourglass-split fs-1"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a href="{% url 'approval_list' %}" class="text-white">View approvals <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="col-md-3">
+        <div class="card text-white bg-info mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Week Range</h5>
+                        <h4 class="card-text">{{ week_start|date:"M d" }} - {{ week_end|date:"M d" }}</h4>
+                        <p class="card-text"><small>Current week</small></p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-calendar-week fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="btn-group" role="group">
+                    {% if not running_timer %}
+                    <a href="{% url 'timer_start' %}" class="btn btn-success">
+                        <i class="bi bi-play-circle"></i> Start Timer
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'timesheet_create' %}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Add Time Entry
+                    </a>
+                    {% if user.profile.role == 'MANAGER' or user.profile.role == 'ADMIN' %}
+                    <a href="{% url 'project_create' %}" class="btn btn-secondary">
+                        <i class="bi bi-folder-plus"></i> New Project
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'report_summary' %}" class="btn btn-info">
+                        <i class="bi bi-file-earmark-bar-graph"></i> View Reports
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Entries -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-clock-history"></i> Recent Time Entries</h5>
+                <a href="{% url 'timesheet_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_entries %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Project</th>
+                                <th>Description</th>
+                                <th>Duration</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in recent_entries %}
+                            <tr>
+                                <td>{{ entry.date|date:"M d, Y" }}</td>
+                                <td>{{ entry.project.name }}</td>
+                                <td>{{ entry.description|truncatewords:8 }}</td>
+                                <td>{{ entry.duration_hours }}h</td>
+                                <td>
+                                    <span class="badge bg-{{ entry.status|lower }}">
+                                        {{ entry.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'timesheet_detail' entry.pk %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-inbox fs-1"></i>
+                    <p class="mt-2">No time entries yet. Start tracking your time!</p>
+                    <a href="{% url 'timesheet_create' %}" class="btn btn-primary">Add Your First Entry</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if running_timer %}
+<script>
+// Update timer display
+function updateTimer() {
+    fetch('{% url 'timer_status' %}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.is_running) {
+                document.getElementById('timer-display').textContent = data.elapsed_time;
+            }
+        })
+}
+
+// Update every second
+setInterval(updateTimer, 1000);
+updateTimer();
+</script>
+{% endif %}
+{% endblock %}

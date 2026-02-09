@@ -12,6 +12,7 @@ dependencies = [
     "dj-database-url>=2.0.0",
     "psycopg2-binary>=2.9.0",
     "git-filter-repo>=2.47.0",
+    "django-cors-headers>=4.9.0",
 ]
 
 [dependency-groups]

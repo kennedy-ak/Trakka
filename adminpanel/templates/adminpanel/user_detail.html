@@ -83,18 +83,20 @@
                     <tr>
                         <th>Role:</th>
                         <td>
-                            {% if target_user.profile.role == 'ADMIN' %}
+                            {% if target_user.profile and target_user.profile.role == 'ADMIN' %}
                                 <span class="badge bg-danger">{{ target_user.profile.role }}</span>
-                            {% elif target_user.profile.role == 'MANAGER' %}
+                            {% elif target_user.profile and target_user.profile.role == 'MANAGER' %}
                                 <span class="badge bg-info">{{ target_user.profile.role }}</span>
-                            {% else %}
+                            {% elif target_user.profile and target_user.profile.role == 'WORKER' %}
                                 <span class="badge bg-primary">{{ target_user.profile.role }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">None</span>
                             {% endif %}
                         </td>
                     </tr>
                     <tr>
                         <th>Department:</th>
-                        <td>{{ target_user.profile.department|default:"-" }}</td>
+                        <td>{% if target_user.profile %}{{ target_user.profile.department|default:"-" }}{% else %}-{% endif %}</td>
                     </tr>
                     <tr>
                         <th>Status:</th>
@@ -118,15 +120,15 @@
     <div class="col-md-6">
         <div class="card shadow-sm">
             <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="bi bi-folder"></i> Assigned Projects ({{ projects.count }})</h5>
+                <h5 class="mb-0"><i class="bi bi-folder"></i> Assigned Projects ({{ projects|length }})</h5>
             </div>
             <div class="card-body">
                 {% if projects %}
                     <div class="list-group">
-                        {% for project in projects %}
-                            <a href="{% url 'project_detail' project.id %}" class="list-group-item list-group-item-action">
-                                {{ project.name }}
-                                <small class="text-muted">{{ project.time_entries.filter(user=target_user).count }} entries</small>
+                        {% for item in projects %}
+                            <a href="{% url 'project_detail' item.project.id %}" class="list-group-item list-group-item-action">
+                                {{ item.project.name }}
+                                <small class="text-muted">{{ item.entry_count }} entries</small>
                             </a>
                         {% endfor %}
                     </div>

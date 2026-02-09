@@ -59,15 +59,17 @@
                             <td>{{ user_obj.get_full_name|default:"-" }}</td>
                             <td>{{ user_obj.email|default:"-" }}</td>
                             <td>
-                                {% if user_obj.profile.role == 'ADMIN' %}
+                                {% if user_obj.profile and user_obj.profile.role == 'ADMIN' %}
                                     <span class="badge bg-danger">{{ user_obj.profile.role }}</span>
-                                {% elif user_obj.profile.role == 'MANAGER' %}
+                                {% elif user_obj.profile and user_obj.profile.role == 'MANAGER' %}
                                     <span class="badge bg-info">{{ user_obj.profile.role }}</span>
-                                {% else %}
+                                {% elif user_obj.profile and user_obj.profile.role == 'WORKER' %}
                                     <span class="badge bg-primary">{{ user_obj.profile.role }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">None</span>
                                 {% endif %}
                             </td>
-                            <td>{{ user_obj.profile.department|default:"-" }}</td>
+                            <td>{% if user_obj.profile %}{{ user_obj.profile.department|default:"-" }}{% else %}-{% endif %}</td>
                             <td>
                                 {% if user_obj.is_active %}
                                     <span class="badge bg-success">Active</span>

@@ -51,15 +51,23 @@
                             </a>
                         </li>
                         {% if user.profile.role == 'MANAGER' or user.profile.role == 'ADMIN' %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'approval_list' %}">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="approvalsDropdown" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-check-circle"></i> Approvals
                             </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'approval_list' %}">
+                                    <i class="bi bi-list-check"></i> Individual Entries
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'weekly_approval_list' %}">
+                                    <i class="bi bi-calendar-check"></i> Weekly Timesheets
+                                </a></li>
+                            </ul>
                         </li>
                         {% endif %}
                         {% if user.profile.role == 'ADMIN' %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'adminpanel:dashboard' %}">
+                            <a class="nav-link" href="{% url 'adminpanel:admin_dashboard' %}">
                                 <i class="bi bi-shield-lock"></i> Admin Panel
                             </a>
                         </li>
@@ -75,7 +83,7 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 {% if user.profile.role == 'ADMIN' %}
-                                <li><a class="dropdown-item" href="{% url 'adminpanel:dashboard' %}">
+                                <li><a class="dropdown-item" href="{% url 'adminpanel:admin_dashboard' %}">
                                     <i class="bi bi-speedometer2"></i> Admin Panel
                                 </a></li>
                                 <li><a class="dropdown-item" href="{% url 'admin:index' %}">
@@ -83,9 +91,14 @@
                                 </a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 {% endif %}
-                                <li><a class="dropdown-item" href="{% url 'logout' %}">
-                                    <i class="bi bi-box-arrow-right"></i> Logout
-                                </a></li>
+                                <li>
+                                    <form action="{% url 'logout' %}" method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="bi bi-box-arrow-right"></i> Logout
+                                        </button>
+                                    </form>
+                                </li>
                             </ul>
                         </li>
                     {% else %}

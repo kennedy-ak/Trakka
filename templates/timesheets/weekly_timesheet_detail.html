@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load timesheet_extras %}
+
+{% block title %}Week Details - Trakka{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>
+                <i class="bi bi-calendar-week"></i> Week of {{ weekly_timesheet.week_start_date|date:"M d, Y" }}
+            </h1>
+            <span class="badge bg-{{ weekly_timesheet.status|status_badge_class }} fs-5">
+                {{ weekly_timesheet.status }}
+            </span>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Hours</h6>
+                        <h2>{{ weekly_timesheet.total_hours|floatformat:1 }}h</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Entries</h6>
+                        <h2>{{ weekly_timesheet.entry_count }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="text-muted">Week Range</h6>
+                        <h5>{{ weekly_timesheet.week_start_date|date:"M d" }} - {{ weekly_timesheet.week_end_date|date:"M d, Y" }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status-specific Messages -->
+        {% if weekly_timesheet.status == 'REJECTED' %}
+        <div class="alert alert-warning">
+            <h5><i class="bi bi-exclamation-triangle"></i> Week Rejected</h5>
+            <p><strong>Reason:</strong> {{ weekly_timesheet.rejection_reason }}</p>
+            <p class="mb-0">You can edit your entries and resubmit the week.</p>
+        </div>
+        {% elif weekly_timesheet.status == 'SUBMITTED' %}
+        <div class="alert alert-info">
+            <i class="bi bi-clock-history"></i> This week has been submitted and is awaiting manager approval.
+        </div>
+        {% elif weekly_timesheet.status == 'APPROVED' %}
+        <div class="alert alert-success">
+            <i class="bi bi-check-circle"></i> This week has been approved by {{ weekly_timesheet.approved_by.username }} on {{ weekly_timesheet.approved_at|date:"M d, Y" }}.
+        </div>
+        {% endif %}
+
+        <!-- Notes -->
+        {% if weekly_timesheet.notes %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-sticky"></i> Notes</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-0">{{ weekly_timesheet.notes }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Entries by Date -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-list-ul"></i> Time Entries</h5>
+                {% if can_submit %}
+                <a href="{% url 'timesheet_create' %}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus-circle"></i> Add Entry
+                </a>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if entries_by_date %}
+                <div class="accordion" id="entriesAccordion">
+                    {% for date, day_entries in entries_by_date.items %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                            <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}">
+                                <strong>{{ date|date:"l, F d, Y" }}</strong>
+                                <span class="badge bg-primary ms-2">{{ day_entries|sum_duration }}h</span>
+                                <span class="badge bg-secondary ms-1">{{ day_entries|length }} entries</span>
+                            </button>
+                        </h2>
+                        <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" data-bs-parent="#entriesAccordion">
+                            <div class="accordion-body">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Project</th>
+                                            <th>Description</th>
+                                            <th>Duration</th>
+                                            <th>Type</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for entry in day_entries %}
+                                        <tr>
+                                            <td>{{ entry.project.name }}</td>
+                                            <td>{{ entry.description|truncatewords:10 }}</td>
+                                            <td>{{ entry.duration_hours }}h</td>
+                                            <td><span class="badge bg-info">{{ entry.entry_type }}</span></td>
+                                            <td><span class="badge bg-{{ entry.status|status_badge_class }}">{{ entry.status }}</span></td>
+                                            <td>
+                                                <a href="{% url 'timesheet_detail' entry.pk %}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-inbox fs-1"></i>
+                    <p class="mt-2">No time entries for this week.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="mt-4 d-flex gap-2">
+            {% if can_submit %}
+            <a href="{% url 'submit_week' weekly_timesheet.week_start_date|date:'Y-m-d' %}" class="btn btn-primary">
+                <i class="bi bi-send"></i> Submit Week
+            </a>
+            {% endif %}
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

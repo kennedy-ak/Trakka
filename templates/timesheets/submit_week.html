@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load timesheet_extras %}
+
+{% block title %}Submit Week - Trakka{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="bi bi-send"></i> Submit Week for Approval</h4>
+            </div>
+            <div class="card-body">
+                <!-- Week Summary -->
+                <div class="alert alert-info">
+                    <h5><i class="bi bi-info-circle"></i> Week Summary</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <strong>Week:</strong> {{ weekly_timesheet.week_start_date|date:"M d" }} - {{ weekly_timesheet.week_end_date|date:"M d, Y" }}
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Total Hours:</strong> {{ weekly_timesheet.total_hours|floatformat:1 }}h
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Total Entries:</strong> {{ weekly_timesheet.entry_count }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Entries by Date -->
+                <h5 class="mb-3">Time Entries</h5>
+                <div class="accordion" id="entriesAccordion">
+                    {% for date, day_entries in entries_by_date.items %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                            <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}">
+                                <strong>{{ date|date:"l, F d, Y" }}</strong>
+                                <span class="badge bg-primary ms-2">{{ day_entries|sum_duration }}h</span>
+                                <span class="badge bg-secondary ms-1">{{ day_entries|length }} entries</span>
+                            </button>
+                        </h2>
+                        <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" data-bs-parent="#entriesAccordion">
+                            <div class="accordion-body">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Project</th>
+                                            <th>Description</th>
+                                            <th>Duration</th>
+                                            <th>Type</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for entry in day_entries %}
+                                        <tr>
+                                            <td>{{ entry.project.name }}</td>
+                                            <td>{{ entry.description|truncatewords:10 }}</td>
+                                            <td>{{ entry.duration_hours }}h</td>
+                                            <td><span class="badge bg-info">{{ entry.entry_type }}</span></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Submission Form -->
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes (Optional)</label>
+                        <textarea name="notes" id="notes" class="form-control" rows="3" placeholder="Add any notes for your manager...">{{ weekly_timesheet.notes }}</textarea>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>Important:</strong> Once submitted, you will not be able to edit or add entries to this week until it is approved or rejected by your manager.
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send"></i> Submit Week
+                        </button>
+                        <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

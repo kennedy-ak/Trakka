@@ -26,9 +26,9 @@
         </div>
 
         <!-- Status Alert -->
-        <div class="alert alert-{{ entry.status|lower == 'pending'|yesno:'warning,success' }} d-flex justify-content-between align-items-center" role="alert">
+        <div class="alert alert-{% if entry.status == 'PENDING' %}warning{% elif entry.status == 'APPROVED' %}success{% else %}danger{% endif %} d-flex justify-content-between align-items-center" role="alert">
             <div>
-                <i class="bi bi-{{ entry.status|lower == 'pending'|yesno:'hourglass-split,check-circle' }}"></i>
+                <i class="bi bi-{% if entry.status == 'PENDING' %}hourglass-split{% elif entry.status == 'APPROVED' %}check-circle{% else %}x-circle{% endif %}"></i>
                 <strong>Status:</strong> {{ entry.status }}
             </div>
             {% if entry.status == 'REJECTED' and entry.rejection_reason %}
@@ -55,6 +55,16 @@
                             <dt class="col-sm-4">Date:</dt>
                             <dd class="col-sm-8">{{ entry.date|date:"l, F d, Y" }}</dd>
 
+                            {% if entry.start_time %}
+                            <dt class="col-sm-4">Start Time:</dt>
+                            <dd class="col-sm-8">{{ entry.start_time|date:"g:i A" }}</dd>
+                            {% endif %}
+
+                            {% if entry.end_time %}
+                            <dt class="col-sm-4">End Time:</dt>
+                            <dd class="col-sm-8">{{ entry.end_time|date:"g:i A" }}</dd>
+                            {% endif %}
+
                             <dt class="col-sm-4">Duration:</dt>
                             <dd class="col-sm-8">
                                 <strong>{{ entry.duration_hours }} hours</strong> ({{ entry.duration_minutes }} minutes)
@@ -71,22 +81,6 @@
                     </div>
                 </div>
 
-                {% if entry.start_time and entry.end_time %}
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0"><i class="bi bi-clock-history"></i> Timer Details</h5>
-                    </div>
-                    <div class="card-body">
-                        <dl class="row">
-                            <dt class="col-sm-4">Started:</dt>
-                            <dd class="col-sm-8">{{ entry.start_time|date:"F d, Y \a\t g:i A" }}</dd>
-
-                            <dt class="col-sm-4">Stopped:</dt>
-                            <dd class="col-sm-8">{{ entry.end_time|date:"F d, Y \a\t g:i A" }}</dd>
-                        </dl>
-                    </div>
-                </div>
-                {% endif %}
             </div>
 
             <div class="col-md-4">

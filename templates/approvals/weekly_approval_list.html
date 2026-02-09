@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load timesheet_extras %}
+
+{% block title %}Weekly Approvals - Trakka{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1><i class="bi bi-calendar-check"></i> Weekly Timesheet Approvals</h1>
+        <p class="text-muted">Review and approve weekly timesheets submitted by workers.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Pending Weekly Timesheets</h5>
+            </div>
+            <div class="card-body">
+                {% if page_obj %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Week Range</th>
+                                <th>Submitted</th>
+                                <th>Total Hours</th>
+                                <th>Entries</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for weekly_timesheet in page_obj %}
+                            <tr>
+                                <td>
+                                    <strong>{{ weekly_timesheet.user.get_full_name|default:weekly_timesheet.user.username }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ weekly_timesheet.user.username }}</small>
+                                </td>
+                                <td>
+                                    {{ weekly_timesheet.week_start_date|date:"M d" }} - {{ weekly_timesheet.week_end_date|date:"M d, Y" }}
+                                </td>
+                                <td>{{ weekly_timesheet.submitted_at|date:"M d, Y H:i" }}</td>
+                                <td><strong>{{ weekly_timesheet.total_hours|floatformat:1 }}h</strong></td>
+                                <td><span class="badge bg-secondary">{{ weekly_timesheet.entry_count }}</span></td>
+                                <td>
+                                    {% if weekly_timesheet.notes %}
+                                    <i class="bi bi-sticky text-primary" data-bs-toggle="tooltip" title="{{ weekly_timesheet.notes }}"></i>
+                                    {% else %}
+                                    <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'approve_weekly_timesheet' weekly_timesheet.pk %}" class="btn btn-sm btn-success">
+                                            <i class="bi bi-check-circle"></i> Approve
+                                        </a>
+                                        <a href="{% url 'reject_weekly_timesheet' weekly_timesheet.pk %}" class="btn btn-sm btn-danger">
+                                            <i class="bi bi-x-circle"></i> Reject
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if page_obj.has_other_pages %}
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                        </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+                {% else %}
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-inbox fs-1"></i>
+                    <p class="mt-2">No weekly timesheets pending approval.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Enable Bootstrap tooltips
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+</script>
+{% endblock %}

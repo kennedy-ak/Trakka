@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load timesheet_extras %}
 
 {% block title %}Dashboard - Trakka{% endblock %}
 
@@ -101,6 +102,84 @@
         </div>
     </div>
 </div>
+
+{% if user.profile.role == 'WORKER' and current_week %}
+<!-- Current Week Status Card -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+                <h5><i class="bi bi-calendar-week"></i> Current Week Status</h5>
+                <span class="badge bg-{{ current_week.status|status_badge_class }}">{{ current_week.status }}</span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <p class="mb-1"><strong>Week:</strong> {{ week_start|date:"M d" }} - {{ week_end|date:"M d, Y" }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="mb-1"><strong>Total Hours:</strong> {{ current_week.total_hours|floatformat:1 }}h</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="mb-1"><strong>Entries:</strong> {{ current_week.entry_count }}</p>
+                    </div>
+                </div>
+
+                {% if current_week.status == 'DRAFT' or current_week.status == 'REJECTED' %}
+                    {% if current_week.entry_count > 0 %}
+                        <div class="mt-3">
+                            <a href="{% url 'submit_week' current_week.week_start_date|date:'Y-m-d' %}" class="btn btn-primary">
+                                <i class="bi bi-send"></i> Submit Week for Approval
+                            </a>
+                            <a href="{% url 'weekly_timesheet_detail' current_week.week_start_date|date:'Y-m-d' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-eye"></i> View Details
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info mt-3 mb-0">
+                            <i class="bi bi-info-circle"></i> Add time entries to submit this week for approval.
+                        </div>
+                    {% endif %}
+                {% elif current_week.status == 'SUBMITTED' %}
+                    <div class="alert alert-info mt-3 mb-0">
+                        <i class="bi bi-clock-history"></i> This week has been submitted and is awaiting manager approval.
+                    </div>
+                {% elif current_week.status == 'APPROVED' %}
+                    <div class="alert alert-success mt-3 mb-0">
+                        <i class="bi bi-check-circle"></i> This week has been approved!
+                    </div>
+                {% endif %}
+
+                {% if current_week.status == 'REJECTED' %}
+                    <div class="alert alert-warning mt-3">
+                        <strong><i class="bi bi-exclamation-triangle"></i> Rejected:</strong> {{ current_week.rejection_reason }}
+                        <p class="mb-0 mt-2"><small>You can edit your entries and resubmit the week.</small></p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if user.profile.role == 'MANAGER' or user.profile.role == 'ADMIN' %}
+<!-- Manager: Weekly Approvals Card -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-calendar-check"></i> Weekly Approvals</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-2"><strong>{{ pending_weekly_approvals_count }}</strong> weekly timesheet(s) pending approval</p>
+                <a href="{% url 'weekly_approval_list' %}" class="btn btn-primary">
+                    <i class="bi bi-list-check"></i> Review Weekly Timesheets
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 <!-- Quick Actions -->
 <div class="row mb-4">

@@ -7,14 +7,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('timesheet', '0001_initial'),
+        ("timesheet", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='project',
-            name='members',
-            field=models.ManyToManyField(blank=True, help_text='Users who can log time to this project', related_name='projects', to=settings.AUTH_USER_MODEL),
+            model_name="project",
+            name="members",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Users who can log time to this project",
+                related_name="projects",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

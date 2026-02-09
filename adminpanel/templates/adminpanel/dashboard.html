@@ -1,225 +1,297 @@
-{% extends 'adminpanel/base.html' %}
-
-{% block title %}Dashboard - Admin Panel{% endblock %}
-
+{% extends 'adminpanel/base.html' %} 
+{% block title %}Dashboard - Admin Panel{% endblock %} 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="bi bi-speedometer2"></i> Admin Dashboard</h1>
-    <span class="badge bg-danger fs-6">Superuser Access</span>
+  <h1><i class="bi bi-speedometer2"></i> Admin Dashboard</h1>
+  <span class="badge bg-danger fs-6">Superuser Access</span>
 </div>
 
 <!-- Quick Stats -->
 <div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card bg-primary text-white shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="mb-0">Total Users</h6>
-                        <h2 class="mb-0">{{ total_users }}</h2>
-                    </div>
-                    <i class="bi bi-people fs-1 opacity-50"></i>
-                </div>
-            </div>
+  <div class="col-md-3">
+    <div class="card bg-primary text-white shadow-sm">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="mb-0">Total Users</h6>
+            <h2 class="mb-0">{{ total_users }}</h2>
+          </div>
+          <i class="bi bi-people fs-1"></i>
         </div>
+      </div>
     </div>
-    <div class="col-md-3">
-        <div class="card bg-success text-white shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="mb-0">Projects</h6>
-                        <h2 class="mb-0">{{ total_projects }}</h2>
-                        <small>{{ active_projects }} active</small>
-                    </div>
-                    <i class="bi bi-folder fs-1 opacity-50"></i>
-                </div>
-            </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card bg-success text-white shadow-sm">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="mb-0">Projects</h6>
+            <h2 class="mb-0">{{ total_projects }}</h2>
+            <small>{{ active_projects }} active</small>
+          </div>
+          <i class="bi bi-folder fs-1"></i>
         </div>
+      </div>
     </div>
-    <div class="col-md-3">
-        <div class="card bg-info text-white shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="mb-0">Time Entries</h6>
-                        <h2 class="mb-0">{{ total_entries }}</h2>
-                    </div>
-                    <i class="bi bi-clock fs-1 opacity-50"></i>
-                </div>
-            </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card bg-info text-white shadow-sm">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="mb-0">Time Entries</h6>
+            <h2 class="mb-0">{{ total_entries }}</h2>
+          </div>
+          <i class="bi bi-clock fs-1"></i>
         </div>
+      </div>
     </div>
-    <div class="col-md-3">
-        <div class="card bg-warning text-dark shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="mb-0">Pending</h6>
-                        <h2 class="mb-0">{{ pending_approvals }}</h2>
-                        <small>approvals</small>
-                    </div>
-                    <i class="bi bi-hourglass-split fs-1 opacity-50"></i>
-                </div>
-            </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card bg-warning text-dark shadow-sm">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="mb-0">Pending</h6>
+            <h2 class="mb-0">{{ pending_approvals }}</h2>
+            <small>approvals</small>
+          </div>
+          <i class="bi bi-hourglass-split fs-1"></i>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Quick Actions -->
 <div class="card mb-4 shadow-sm">
-    <div class="card-header bg-white">
-        <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Actions</h5>
+  <div class="card-header bg-white">
+    <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Actions</h5>
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
+      <div class="col-md-3">
+        <a
+          href="{% url 'adminpanel:user_create' %}"
+          class="btn btn-primary w-100"
+        >
+          <i class="bi bi-person-plus"></i> Create User
+        </a>
+      </div>
+      <div class="col-md-3">
+        <a
+          href="{% url 'adminpanel:user_list' %}"
+          class="btn btn-outline-primary w-100"
+        >
+          <i class="bi bi-people"></i> Manage Users
+        </a>
+      </div>
+      <div class="col-md-3">
+        <a
+          href="{% url 'adminpanel:project_list' %}"
+          class="btn btn-outline-success w-100"
+        >
+          <i class="bi bi-folder"></i> Manage Projects
+        </a>
+      </div>
+      <div class="col-md-3">
+        <a
+          href="{% url 'approval_list' %}"
+          class="btn btn-outline-warning w-100"
+        >
+          <i class="bi bi-check-circle"></i> Approvals ({{ pending_approvals }})
+        </a>
+      </div>
     </div>
-    <div class="card-body">
-        <div class="row g-3">
-            <div class="col-md-3">
-                <a href="{% url 'adminpanel:user_create' %}" class="btn btn-primary w-100">
-                    <i class="bi bi-person-plus"></i> Create User
-                </a>
-            </div>
-            <div class="col-md-3">
-                <a href="{% url 'adminpanel:user_list' %}" class="btn btn-outline-primary w-100">
-                    <i class="bi bi-people"></i> Manage Users
-                </a>
-            </div>
-            <div class="col-md-3">
-                <a href="{% url 'adminpanel:project_list' %}" class="btn btn-outline-success w-100">
-                    <i class="bi bi-folder"></i> Manage Projects
-                </a>
-            </div>
-            <div class="col-md-3">
-                <a href="{% url 'approval_list' %}" class="btn btn-outline-warning w-100">
-                    <i class="bi bi-check-circle"></i> Approvals ({{ pending_approvals }})
-                </a>
-            </div>
-        </div>
-    </div>
+  </div>
 </div>
 
 <!-- User Role Breakdown -->
 <div class="row mb-4">
-    <div class="col-md-12">
-        <div class="card shadow-sm">
-            <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="bi bi-person-badge"></i> User Role Distribution</h5>
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <h5 class="mb-0">
+          <i class="bi bi-person-badge"></i> User Role Distribution
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row text-center">
+          <div class="col-md-4">
+            <div class="p-3 bg-light rounded">
+              <i class="bi bi-person fs-2 text-primary"></i>
+              <h4 class="text-primary mt-2">{{ workers_count }}</h4>
+              <p class="mb-0 small">Workers</p>
             </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-md-4">
-                        <div class="p-4 bg-light rounded">
-                            <i class="bi bi-person fs-1 text-primary"></i>
-                            <h3 class="text-primary mt-2">{{ workers_count }}</h3>
-                            <p class="mb-0">Workers</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="p-4 bg-light rounded">
-                            <i class="bi bi-person-gear fs-1 text-info"></i>
-                            <h3 class="text-info mt-2">{{ managers_count }}</h3>
-                            <p class="mb-0">Managers</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="p-4 bg-light rounded">
-                            <i class="bi bi-shield-lock fs-1 text-danger"></i>
-                            <h3 class="text-danger mt-2">{{ admins_count }}</h3>
-                            <p class="mb-0">Admins</p>
-                        </div>
-                    </div>
-                </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-3 bg-light rounded">
+              <i class="bi bi-person-gear fs-2 text-info"></i>
+              <h4 class="text-info mt-2">{{ managers_count }}</h4>
+              <p class="mb-0 small">Managers</p>
             </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-3 bg-light rounded">
+              <i class="bi bi-shield-lock fs-2 text-danger"></i>
+              <h4 class="text-danger mt-2">{{ admins_count }}</h4>
+              <p class="mb-0 small">Admins</p>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <h5 class="mb-0">
+          <i class="bi bi-calendar-week"></i> Weekly Timesheet Statistics
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row text-center">
+          <div class="col-md-4">
+            <div class="p-3 bg-light rounded">
+              <i class="bi bi-calendar3 fs-2 text-secondary"></i>
+              <h4 class="text-secondary mt-2">{{ total_weekly_timesheets }}</h4>
+              <p class="mb-0 small">Total Weeks</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-3 bg-light rounded">
+              <i class="bi bi-clock-history fs-2 text-warning"></i>
+              <h4 class="text-warning mt-2">{{ pending_weekly_approvals }}</h4>
+              <p class="mb-0 small">Pending</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-3 bg-light rounded">
+              <i class="bi bi-check-circle fs-2 text-success"></i>
+              <h4 class="text-success mt-2">{{ approved_weekly_timesheets }}</h4>
+              <p class="mb-0 small">Approved</p>
+            </div>
+          </div>
+        </div>
+        <div class="mt-3 text-center">
+          <a href="{% url 'weekly_approval_list' %}" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-calendar-check"></i> Review Weekly Timesheets
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="row">
-    <!-- Recent Pending Approvals -->
-    <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-hourglass-split"></i> Pending Approvals</h5>
-                <a href="{% url 'approval_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
-            </div>
-            <div class="card-body p-0">
-                {% if pending_entries %}
-                    <div class="table-responsive">
-                        <table class="table table-sm mb-0">
-                            <thead>
-                                <tr>
-                                    <th>User</th>
-                                    <th>Project</th>
-                                    <th class="text-end">Hours</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for entry in pending_entries %}
-                                    <tr>
-                                        <td>{{ entry.user.username }}</td>
-                                        <td>{{ entry.project.name }}</td>
-                                        <td class="text-end">{{ entry.duration_hours }}h</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="text-center p-4 text-muted">
-                        <i class="bi bi-check-circle fs-1"></i>
-                        <p class="mt-2 mb-0">No pending approvals</p>
-                    </div>
-                {% endif %}
-            </div>
+  <!-- Recent Pending Approvals -->
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div
+        class="card-header bg-white d-flex justify-content-between align-items-center"
+      >
+        <h5 class="mb-0">
+          <i class="bi bi-hourglass-split"></i> Pending Approvals
+        </h5>
+        <a
+          href="{% url 'approval_list' %}"
+          class="btn btn-sm btn-outline-primary"
+          >View All</a
+        >
+      </div>
+      <div class="card-body p-0">
+        {% if pending_entries %}
+        <div class="table-responsive">
+          <table class="table table-sm mb-0">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Project</th>
+                <th class="text-end">Hours</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for entry in pending_entries %}
+              <tr>
+                <td>{{ entry.user.username }}</td>
+                <td>{{ entry.project.name }}</td>
+                <td class="text-end">{{ entry.duration_hours }}h</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
+        {% else %}
+        <div class="text-center p-4 text-muted">
+          <i class="bi bi-check-circle fs-1"></i>
+          <p class="mt-2 mb-0">No pending approvals</p>
+        </div>
+        {% endif %}
+      </div>
     </div>
+  </div>
 
-    <!-- Recent Users -->
-    <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-person-plus"></i> Recent Users</h5>
-                <a href="{% url 'adminpanel:user_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
-            </div>
-            <div class="card-body p-0">
-                {% if recent_users %}
-                    <div class="table-responsive">
-                        <table class="table table-sm mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Username</th>
-                                    <th>Role</th>
-                                    <th>Joined</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for user_obj in recent_users %}
-                                    <tr>
-                                        <td>
-                                            <a href="{% url 'adminpanel:user_detail' user_obj.id %}">{{ user_obj.username }}</a>
-                                        </td>
-                                        <td>
-                                            {% if user_obj.profile.role == 'ADMIN' %}
-                                                <span class="badge bg-danger">{{ user_obj.profile.role }}</span>
-                                            {% elif user_obj.profile.role == 'MANAGER' %}
-                                                <span class="badge bg-info">{{ user_obj.profile.role }}</span>
-                                            {% else %}
-                                                <span class="badge bg-primary">{{ user_obj.profile.role }}</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>{{ user_obj.date_joined|date:"M d, Y" }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="text-center p-4 text-muted">
-                        <i class="bi bi-people fs-1"></i>
-                        <p class="mt-2 mb-0">No users yet</p>
-                    </div>
-                {% endif %}
-            </div>
+  <!-- Recent Users -->
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div
+        class="card-header bg-white d-flex justify-content-between align-items-center"
+      >
+        <h5 class="mb-0"><i class="bi bi-person-plus"></i> Recent Users</h5>
+        <a
+          href="{% url 'adminpanel:user_list' %}"
+          class="btn btn-sm btn-outline-primary"
+          >View All</a
+        >
+      </div>
+      <div class="card-body p-0">
+        {% if recent_users %}
+        <div class="table-responsive">
+          <table class="table table-sm mb-0">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user_obj in recent_users %}
+              <tr>
+                <td>
+                  <a href="{% url 'adminpanel:user_detail' user_obj.id %}"
+                    >{{ user_obj.username }}</a
+                  >
+                </td>
+                <td>
+                  {% if user_obj.profile.role == 'ADMIN' %}
+                  <span class="badge bg-danger"
+                    >{{ user_obj.profile.role }}</span
+                  >
+                  {% elif user_obj.profile.role == 'MANAGER' %}
+                  <span class="badge bg-info">{{ user_obj.profile.role }}</span>
+                  {% else %}
+                  <span class="badge bg-primary"
+                    >{{ user_obj.profile.role }}</span
+                  >
+                  {% endif %}
+                </td>
+                <td>{{ user_obj.date_joined|date:"M d, Y" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
+        {% else %}
+        <div class="text-center p-4 text-muted">
+          <i class="bi bi-people fs-1"></i>
+          <p class="mt-2 mb-0">No users yet</p>
+        </div>
+        {% endif %}
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}
